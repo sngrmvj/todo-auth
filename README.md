@@ -17,3 +17,16 @@
 - MongoDb to store the items and postres to store the details of the person.
 - Rest api framework for HTTP requests or try to implement messaging service.
 - Implement Terraform script to deploy the app to the AWS or Azure etc.
+
+
+### For my 
+- Kafka topic two partition
+    - One for general
+        - Name of the person or email
+        - CRUD operation
+        - message description
+    - Two for daily 
+        - name of the person or email
+        - CRUD operation 
+        - message description
+        
