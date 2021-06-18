@@ -19,7 +19,7 @@
 - Implement Terraform script to deploy the app to the AWS or Azure etc.
 
 
-### For my 
+### For me
 - Kafka topic two partition
     - One for general
         - Name of the person or email
@@ -29,4 +29,4 @@
         - name of the person or email
         - CRUD operation 
         - message description
-        
+
