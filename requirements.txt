@@ -1,4 +1,6 @@
-django
-djongo
+django # Main Framework
 djangorestframework
 kafka-python
+psycopg2
+jwt
+PyJWT

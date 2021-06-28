@@ -13,8 +13,12 @@
 - The main moto is to save the items of the person inside the database and retrieve them when ever it is necessary
 
 #### Features
+- Password gets hashed before inserting into database. Can't be decrypted. 
+    - When a user logins, the password is hashed and compared with the hashed password in the database.
+- Implement forgot password.
 - Token and token refreshing 
-- MongoDb to store the items and postres to store the details of the person.
+- API Gateway
+- This is authentication service to validate the user and issue token to access microservice.
 - Rest api framework for HTTP requests or try to implement messaging service.
 - Implement Terraform script to deploy the app to the AWS or Azure etc.
 
