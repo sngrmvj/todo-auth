@@ -32,6 +32,7 @@ def validateToken(token):
     encoded_token = jwt.decode(token,SECRET_KEY,algorithm=['HS256'])
 
 
+
 ###
 # Create your views here.
 ###
