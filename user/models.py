@@ -26,8 +26,3 @@ class User(models.Model):
                         email=userDetails['email'], password= str(hashedPassword(userDetails['password'])),
                         date_joined = datetime.datetime.now())
         return userDetails
-
-
-    @staticmethod
-    def getUserDetails(email):
-        return User.objects.get(email=email)
