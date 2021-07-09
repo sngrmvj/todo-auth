@@ -1,9 +1,10 @@
 
 from django.urls import path
-from user.views import login,signup,token_validation
+from user.views import login,signup,get_access_token,authorization
 
 urlpatterns = [
     path("login",login,name="Login"),
-    path("signup",signup,name="SignUp"),
-    path("validation",token_validation,name="Validate Token")
+    path("register",signup,name="register"),
+    path("authorize",authorization,name="Validate Token"),
+    path("refresh",get_access_token,name="Get Access Token")
 ]
