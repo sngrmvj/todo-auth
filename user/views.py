@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from django.http import JsonResponse,HttpResponse
 
 from user.models import User,RegisterTokens,BlacklistTokens
+from user.admin import GENERATED_OTP
 from toDo.settings import SECRET_KEY
-import json,jwt,hashlib,datetime
+import json,jwt,hashlib,datetime,random,math
 
 
 ### 
@@ -60,7 +61,16 @@ def validate_and_decode_token(token):
     except jwt.InvalidTokenError:
         return 'Invalid token. Please log in again.'
 
+# >>>> Generate OTP
+def generate_otp():
 
+    digits = [i for i in range(0, 10)]
+    random_str = "P-"
+    for i in range(6):
+        index = math.floor(random.random() * 10)
+        random_str += str(digits[index])
+
+    return random_str
 
 
 
@@ -91,6 +101,8 @@ def login(request):
         encoded_password = str(hashedPassword(body['password']))
 
         userDetails = User.objects.get(email=body['email'])
+        if not userDetails:
+            return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
         if (userDetails.email == body['email'] and userDetails.password == encoded_password):
             access_token = createToken(userDetails)
             is_reg_token_avail = RegisterTokens.objects.filter(user_id=userDetails.id)
@@ -239,3 +251,45 @@ def get_access_token(request):
         print(f"Error ocurred during refresh of the access token - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
         
+
+##########
+### Generate OTP
+##########
+@api_view(http_method_names=['PUT'])
+def send_otp(request):
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        userDetails = User.objects.get(email=body['email'])
+        if not userDetails:
+            return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+        else:
+            global GENERATED_OTP
+            GENERATED_OTP = generate_otp()
+    except Exception as error:
+        print(f"Error ocurred during sending of token - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+##########
+###  OTP VERIFICATION
+##########
+@api_view(http_method_names=['PUT'])
+def otp_verify(request):
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        if body['otp'] is None:
+            return Response({'message':'OTP did not match'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+        elif body['otp'] == GENERATED_OTP:
+            return Response({'message':'OTPs Matched','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during verification of OTP - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
