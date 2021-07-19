@@ -16,7 +16,8 @@
 - Password gets hashed before inserting into database. Can't be decrypted. 
     - When a user logins, the password is hashed and compared with the hashed password in the database.
 - Implement forgot password.
-- Token validation and token refreshing
+- Token validation and token refreshing.
+- Password reset using the OTP.
 - API Gateway
 - This is authentication service to validate the user and issue token to access microservice.
 - Rest api framework for HTTP requests or try to implement messaging service.
