@@ -193,6 +193,10 @@ def get_access_token(request):
         If the refresh token doesn't exist in the database we navigate to login page.
     """
 
+    """
+        NOT IMPLEMENTED - SEND REFRESH TOKEN IN HEADERS
+    """
+
     try:
         # Query Parameter
         check_default = request.query_params.get('blacklist')
@@ -293,3 +297,50 @@ def otp_verify(request):
     except Exception as error:
         print(f"Error ocurred during verification of OTP - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+##########
+###  CHANGE PASSWORD
+##########
+@api_view(http_method_names=['PUT'])
+def change_password(request):
+
+    """
+        Note - 
+        Here we used refresh token for finding the user. Refresh token contains the user id.
+        Using the user id we can query the DB to update the user password.
+    """
+
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+        try:
+            decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
+            if isinstance(decoded_token,str):
+                return Response({'error':decoded_token}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json") 
+        except Exception as error:
+            return Response({'error':error}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+        userDetails = User.objects.get(id=decoded_token['userID'])
+        if userDetails:
+            userDetails = User.objects.filter(id=decoded_token['userID']).update(password=body['password'])
+            userDetails.save()
+            return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        else:
+            return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during changing password - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+
+##########
+###  DELETE USER
+##########
+@api_view(http_method_names=['DELETE'])
+def delete_user(request):
+    pass
