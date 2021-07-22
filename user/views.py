@@ -339,8 +339,32 @@ def change_password(request):
 
 
 ##########
-###  DELETE USER
+###  DELETE USER (Admin Page)
 ##########
 @api_view(http_method_names=['DELETE'])
 def delete_user(request):
-    pass
+    
+    
+    try:
+        token = request.headers.get('Authorization', None)
+        decoded_token = validate_and_decode_token(token)
+
+        # Removing the Bearer string from the token
+        token = token.split(" ")[1] 
+        registered_tokens = RegisterTokens.objects.get(registered=token)
+        # if the token exists we can delete the token
+        if registered_tokens:
+            body = {
+                'refresh': token
+            }
+            registered_tokens.delete()
+            blacklist = BlacklistTokens.blacklist_token(body)
+            blacklist.save()
+        
+        # Deleting the user with the user id
+        User.objects.get(id=decoded_token['userID']).delete()
+        
+        return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        return Response({'error':error,'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
