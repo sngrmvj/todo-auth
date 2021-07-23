@@ -11,27 +11,28 @@
 
 #### Main Moto
 - The main moto is to save the items of the person inside the database and retrieve them when ever it is necessary
+- Authentication server
+- For storing of the tasks another microservice is used developed in Java and uses Kafka.
 
 #### Features
+- Authentication server, a microservice to create user and login user.
 - Password gets hashed before inserting into database. Can't be decrypted. 
     - When a user logins, the password is hashed and compared with the hashed password in the database.
-- Implement forgot password.
-- Token validation and token refreshing.
+- JWT Tokens 
+    - Refresh Tokens which expires in 30 days
+    - Access Tokens which expires in 5 minutes
+    - Refresh tokens are used to fetch access tokens instead of user logging in again and again.
+- CRUD Operations for the user details.
 - Password reset using the OTP.
-- API Gateway
-- This is authentication service to validate the user and issue token to access microservice.
-- Rest api framework for HTTP requests or try to implement messaging service.
-- Implement Terraform script to deploy the app to the AWS or Azure etc.
+- DB (Postgres DB only for the authentication server)
+    - To store user creds
+    - refresh tokens
+    - blacklisted tokens
+- Need to implement
+    - Token Validation by authentication server
+    - Sending Email
+    - API gateway
+    - Containerize it.
+    - Terraform Script
 
-
-### For me
-- Kafka topic two partition
-    - One for general
-        - Name of the person or email
-        - CRUD operation
-        - message description
-    - Two for daily 
-        - name of the person or email
-        - CRUD operation 
-        - message description
 

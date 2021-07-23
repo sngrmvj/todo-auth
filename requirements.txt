@@ -1,6 +1,6 @@
 django # Main Framework
 djangorestframework
-kafka-python
+djangorestframework-simplejwt
 psycopg2
 jwt
 PyJWT

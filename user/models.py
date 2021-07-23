@@ -17,14 +17,38 @@ class User(models.Model):
     lastname = models.CharField(max_length=128,null=False,db_index=True)
     email = models.CharField(max_length=255,null=False,unique=True,db_index=True)
     password = models.CharField(max_length=256,null=False)
+    is_admin = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(max_length=256,null=False,default=datetime.datetime.now())
+
+    @classmethod
+    def createUser(cls,userDetails):
+        userDetails = cls(firstname=userDetails['firstname'],lastname=userDetails['lastname'],
+                        email=userDetails['email'], 
+                        password= str(hashedPassword(userDetails['password'])),
+                        is_admin= False,
+                        date_joined = datetime.datetime.now())
+        return userDetails
+
+
+
+class Admin(models.Model):
+    class Meta:
+        db_table = 'admin_credentials'
+
+    firstname = models.CharField(max_length=128,null=False,db_index=True)
+    lastname = models.CharField(max_length=128,null=False,db_index=True)
+    email = models.CharField(max_length=255,null=False,unique=True,db_index=True)
+    password = models.CharField(max_length=256,null=False)
+    is_admin = models.BooleanField(default=True)
     date_joined = models.DateTimeField(max_length=256,null=False,default=datetime.datetime.now())
 
     @classmethod
     def createUser(cls,userDetails):
         userDetails = cls(firstname=userDetails['firstname'],lastname=userDetails['lastname'],
                         email=userDetails['email'], password= str(hashedPassword(userDetails['password'])),
-                        date_joined = datetime.datetime.now())
+                        is_admin=True,date_joined = datetime.datetime.now())
         return userDetails
+
 
 
 class RegisterTokens(models.Model): 
