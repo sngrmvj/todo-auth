@@ -364,7 +364,74 @@ def update_user_email(request):
         else:
             raise Exception("Email to be updated is empty")
 
-        return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        return Response({'message':'Email successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during updating of user details - {error}")
+        return Response({"error":error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+
+##########
+###  Update USER Firstname
+##########
+@api_view(http_method_names=['PUT'])
+def update_user_firstname(request):
+    
+    """
+        Note - 
+        Mostly to update the email.
+    """
+
+    try:
+    
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        #refresh token
+        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
+        if body['firstname'] != "":
+            User.objects.get(id=decoded_token['userID']).update(firstname=body['firstname'])
+        else:
+            raise Exception("Firstname to be updated is empty")
+
+        return Response({'message':'Firstname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during updating of user details - {error}")
+        return Response({"error":error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+
+
+##########
+###  Update USER Lastname
+##########
+@api_view(http_method_names=['PUT'])
+def update_user_lastname(request):
+    
+    """
+        Note - 
+        Mostly to update the Lastname.
+    """
+
+    try:
+    
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        #refresh token
+        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
+        if body['lastname'] != "":
+            User.objects.get(id=decoded_token['userID']).update(lastname=body['lastname'])
+        else:
+            raise Exception("Lastname to be updated is empty")
+
+        return Response({'message':'Lasttname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
 
     except Exception as error:
         print(f"Error ocurred during updating of user details - {error}")
