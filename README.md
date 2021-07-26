@@ -1,8 +1,10 @@
 
-# To Do Planner (APIs)
+# To Do Planner
+
+- Authentication Server
 
 ### To Do planner
-- It has two types of to-do list.
+- Implemented two types of To-Do lists.
 - One is normal to do list
 - The other is to-do list that refreshes daily (unchecks the checked items in a particular day).
     - Basically daily routine items or things to be done are unchecked automatically at the start of the day.
@@ -15,7 +17,7 @@
 - For storing of the tasks another microservice is used developed in Java and uses Kafka.
 
 #### Features
-- Authentication server, a microservice to create user and login user.
+- Authentication server, a microservice to create user and login user and provide permissions.
 - Password gets hashed before inserting into database. Can't be decrypted. 
     - When a user logins, the password is hashed and compared with the hashed password in the database.
 - JWT Tokens 
@@ -29,7 +31,7 @@
     - refresh tokens
     - blacklisted tokens
 - Need to implement
-    - Token Validation by authentication server
+    - Provide permissions in JWt to access the other microservice
     - Sending Email
     - API gateway
     - Containerize it.
