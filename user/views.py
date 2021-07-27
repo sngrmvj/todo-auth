@@ -87,6 +87,12 @@ def generate_otp():
 # Create your views here.
 ###
 
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+#>>>> Login Page
+
 @api_view(http_method_names=['PUT'])
 def login(request):
 
@@ -120,8 +126,18 @@ def login(request):
         return Response({'error':error}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
 
+# ---------------------------------------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Sign Up page
 @api_view(http_method_names=['POST'])
 def signup(request):
 
@@ -149,39 +165,60 @@ def signup(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-@api_view(http_method_names=['PUT'])
-def authorization(request):
 
-    """
-        Note - This function is to validate the user by decoding the token.
-    """
 
-    try:
-        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
-        if isinstance(decoded_token,str):
-            return Response({'error':decoded_token}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json") 
-    except Exception as error:
-        return Response({'error':error}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
-    try:
-        userDetails = User.objects.get(email=decoded_token['email'])
-        print(userDetails.email)
-    except TypeError:
-        return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json") 
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# # >>>> Token Verification
+# @api_view(http_method_names=['PUT'])
+# def authorization(request):
+
+#     """
+#         Note - This function is to validate the user by decoding the token.
+#         * This is not required. We never decode the token and verify the values of it.
+#         There are a lot of ways to implement JWT token authentication.
+#     """
+
+#     try:
+#         decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
+#         if isinstance(decoded_token,str):
+#             return Response({'error':decoded_token}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json") 
+#     except Exception as error:
+#         return Response({'error':error}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+#     try:
+#         userDetails = User.objects.get(email=decoded_token['email'])
+#         print(userDetails.email)
+#     except TypeError:
+#         return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json") 
     
-    if (userDetails.email == decoded_token['email'] and userDetails.firstname == decoded_token['firstname']):
-        return Response({'message':'Authorized Successfully'}, status=status.HTTP_202_ACCEPTED,content_type="application/json")
-    else:
-        return Response({'message':'Unauthorized action !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+#     if (userDetails.email == decoded_token['email'] and userDetails.firstname == decoded_token['firstname']):
+#         return Response({'message':'Authorized Successfully'}, status=status.HTTP_202_ACCEPTED,content_type="application/json")
+#     else:
+#         return Response({'message':'Unauthorized action !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
 
 
-##########
-### Refresh Token
-##########
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# >>>> Refresh Token
 @api_view(http_method_names=['PUT'])
 def get_access_token(request):
 
@@ -256,9 +293,18 @@ def get_access_token(request):
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
         
 
-##########
-### Generate OTP
-##########
+# ---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Generate OTP
 @api_view(http_method_names=['PUT'])
 def send_otp(request):
 
@@ -279,9 +325,15 @@ def send_otp(request):
 
 
 
-##########
-###  OTP VERIFICATION
-##########
+# ---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  OTP VERIFICATION
 @api_view(http_method_names=['PUT'])
 def otp_verify(request):
 
@@ -299,10 +351,13 @@ def otp_verify(request):
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-##########
-###  CHANGE PASSWORD
-##########
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  CHANGE PASSWORD
 @api_view(http_method_names=['PUT'])
 def change_password(request):
 
@@ -339,10 +394,15 @@ def change_password(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-##########
-###  Update USER Email
-##########
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  Update USER Email
 @api_view(http_method_names=['PUT'])
 def update_user_email(request):
     
@@ -372,10 +432,18 @@ def update_user_email(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-##########
-###  Update USER Firstname
-##########
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  Update USER Firstname
 @api_view(http_method_names=['PUT'])
 def update_user_firstname(request):
     
@@ -406,10 +474,16 @@ def update_user_firstname(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-##########
-###  Update USER Lastname
-##########
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# >>>> Update USER Lastname
 @api_view(http_method_names=['PUT'])
 def update_user_lastname(request):
     
@@ -441,10 +515,18 @@ def update_user_lastname(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
-##########
-###  DELETE USER (Admin Page)
-##########
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# >>>>  DELETE USER (Admin Page)
 @api_view(http_method_names=['DELETE'])
 def delete_user(request):
     
@@ -476,6 +558,7 @@ def delete_user(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
 
 
 

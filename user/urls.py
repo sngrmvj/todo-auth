@@ -5,7 +5,7 @@ from user import views
 urlpatterns = [
     path("login",views.login,name="Login"),
     path("register",views.signup,name="register"),
-    path("authorize",views.authorization,name="Validate Token"),
+    # path("authorize",views.authorization,name="Validate Token"),
     path("refresh",views.get_access_token,name="Get Access Token"),
     path("validate_otp",views.otp_verify,name="OTP Verification"),
     path("otp",views.send_otp,name="Send OTP"),
