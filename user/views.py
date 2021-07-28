@@ -30,13 +30,22 @@ def create_refresh_token(id):
 # >>>> Token generation
 def createToken(data):
 
+    if data.is_admin == False:
+        role = 'user'
+        permissions = 'only_task'
+    else:
+        role = 'admin'
+        permissions = 'admin_access'
+
     try:
         payload = {
             'token_type': 'access',
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0,minutes=10),
             'firstname': data.firstname,
             'lastname': data.lastname,
-            'email': data.email
+            'email': data.email,
+            'roles': role,
+            'permissions': permissions
         }
         return jwt.encode(payload,SECRET_KEY,algorithm='HS256')
     except Exception as error:
