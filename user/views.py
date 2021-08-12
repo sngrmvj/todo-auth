@@ -127,7 +127,7 @@ def login(request):
             token_register = RegisterTokens.register_token(refresh_token,userDetails.id)
             headers = {'refresh':refresh_token,'access':access_token}
             token_register.save()
-            return Response({'message':'Authenticated Successfully'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+            return Response({'message':'Successfully Logged In'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
     except Exception as error:
