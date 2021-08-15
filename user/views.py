@@ -239,8 +239,6 @@ def check_your_authorization(request):
         return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
     try:
-        if REFRESH_TOKEN_NAME not in request.COOKIES:
-            return Response({'message':'Refresh Token not available','flag':False}, status=status.HTTP_200_OK,mimetype="application/json") 
         refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         decoded_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
         if decoded_token['project'] == 'to-do':
