@@ -1,11 +1,11 @@
-from django.http.response import HttpResponseServerError, HttpResponse
+from django.http.response import HttpResponseServerError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse,HttpResponse
 
 from user.models import User,RegisterTokens,BlacklistTokens
-from user.admin import GENERATED_OTP
+from user.admin import GENERATED_OTP, REFRESH_TOKEN_NAME,ACCESS_TOKEN_NAME
 from toDo.settings import SECRET_KEY
 import json,jwt,hashlib,datetime,random,math
 
@@ -129,8 +129,8 @@ def login(request):
             token_register.save()
             headers={"access-control-expose-headers": "Set-Cookie"}
             response = Response({'message':'Successfully Logged In'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
-            response.set_cookie(key='todo-refreshToken',value=refresh_token,httponly=True)
-            response.set_cookie(key='todo-accessToken',value=access_token,httponly=True)
+            response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True)
+            response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
             return response
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
@@ -236,10 +236,12 @@ def check_your_authorization(request):
         registered_tokens = RegisterTokens.objects.get(registered= request.COOKIES['todo-refreshToken'])
     except Exception as error:
         print(f"Error ocurred during fetch of the registered tokens - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
     try:
-        refresh_token =  request.COOKIES['todo-refreshToken'] 
+        if REFRESH_TOKEN_NAME not in request.COOKIES:
+            return Response({'message':'Refresh Token not available','flag':False}, status=status.HTTP_200_OK,mimetype="application/json") 
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         decoded_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
         if decoded_token['project'] == 'to-do':
             # Get the current time in seconds
@@ -250,20 +252,15 @@ def check_your_authorization(request):
                 # Ask the user to Login again
                 return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
             else:
-                return Response({'message':'You are good. No worries',}, status=status.HTTP_200_OK,content_type="application/json")
+                return Response({'message':'You are good. No worries'}, status=status.HTTP_200_OK,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during check of authorization - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        return Response({'error':f"Error ocurred during check of authorization - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
 
 
 # ---------------------------------------------------------------------------------------------------------
-
-
-
-
-
 
 
 

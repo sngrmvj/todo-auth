@@ -3,6 +3,7 @@ djangorestframework
 djangorestframework-simplejwt
 psycopg2
 jwt
+flask
 hashlib
 PyJWT
 django-cors-headers
