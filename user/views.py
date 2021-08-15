@@ -135,7 +135,7 @@ def login(request):
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
     except Exception as error:
-        print(error)
+        print(f"Error ocurred during login - {error}")
         return Response({'error':error}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
 # 
@@ -171,7 +171,7 @@ def signup(request):
         else:
             return Response({'message':'User already Exists'}, status=status.HTTP_409_CONFLICT,content_type="application/json")
     except Exception as error:
-        print(error)
+        print(f"Error ocurred during signup - {error}")
         return Response({'error':error}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
 
     return Response({'message':'User Created Successfully'}, status=status.HTTP_201_CREATED,content_type="application/json")

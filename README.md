@@ -24,7 +24,9 @@
     - Refresh Tokens which expires in 30 days
     - Access Tokens which expires in 5 minutes
     - Refresh tokens are used to fetch access tokens instead of user logging in again and again.
-    - Tokens are stored in cookie and httpOnly set to True.
+    - Tokens are stored in cookie and httpOnly set to True. Check Login API. 
+        - In UI, the http call should contain options - {withCredentials: true, observe:"response"}
+        - This sets the cookie directly in the browser without any set-cookie, get-cookie in UI.
 - CRUD Operations for the user details.
 - Password reset using the OTP.
 - DB (Postgres DB only for the authentication server)
