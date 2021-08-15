@@ -129,8 +129,8 @@ def login(request):
             token_register.save()
             headers={"access-control-expose-headers": "Set-Cookie"}
             response = Response({'message':'Successfully Logged In'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
-            response.set_cookie(key='refreshToken',value=refresh_token,httponly=True)
-            response.set_cookie(key='accessToken',value=access_token,httponly=True)
+            response.set_cookie(key='todo-refreshToken',value=refresh_token,httponly=True)
+            response.set_cookie(key='todo-accessToken',value=access_token,httponly=True)
             return response
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
@@ -227,14 +227,32 @@ def signup(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
-@api_view(http_method_names=['PUT'])
+# >>>> Important not to access the planners without valid refresh token
+
+@api_view(http_method_names=['GET'])
 def check_your_authorization(request):
 
-    try:
-
-        tokens = request
+    try:  
+        registered_tokens = RegisterTokens.objects.get(registered= request.COOKIES['todo-refreshToken'])
     except Exception as error:
-        print(f"Error ocurred during refresh of the access token - {error}")
+        print(f"Error ocurred during fetch of the registered tokens - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+    try:
+        refresh_token =  request.COOKIES['todo-refreshToken'] 
+        decoded_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
+        if decoded_token['project'] == 'to-do':
+            # Get the current time in seconds
+            present_time = int(datetime.datetime.utcnow().timestamp())
+            # Check whether the expiry time is more than the present time
+            if (decoded_token['exp'] - present_time) < 1:
+                registered_tokens.delete()
+                # Ask the user to Login again
+                return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+            else:
+                return Response({'message':'You are good. No worries',}, status=status.HTTP_200_OK,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during check of authorization - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
@@ -308,11 +326,8 @@ def get_access_token(request):
 
                     # Deleting the refresh token for the particular user
                     registered_tokens.delete()
-                    # Creating the refresh token for the particular user
-                    refresh_token = create_refresh_token(decoded_token['userID'])
-                    # Storing the refresh token for the particular user
-                    token_register = RegisterTokens.register_token(refresh_token,decoded_token['userID'])
-                    token_register.save()
+                    # Ask the user to Login again
+                    return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
                 else:
                     # Here the the expiry time is still there 
                     refresh_token = body['refresh']
@@ -322,8 +337,8 @@ def get_access_token(request):
                 userDetails = User.objects.get(id=decoded_token['userID'])
                 # Creatng the access token using the userdetails that we get from above.
                 access_token = createToken(userDetails)
-                refresh_headers = {'refresh':refresh_token,'access':access_token}
-                return Response({'message':'Token refreshed successfully'}, status=status.HTTP_200_OK,headers=refresh_headers,content_type="application/json")
+
+                return Response({'message':'Token refreshed successfully'}, status=status.HTTP_200_OK,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during refresh of the access token - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
