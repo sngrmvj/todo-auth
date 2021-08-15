@@ -1,4 +1,4 @@
-from django.http.response import HttpResponseServerError
+from django.http.response import HttpResponseServerError, HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -19,6 +19,7 @@ def create_refresh_token(id):
         payload ={
             'token_type': 'refresh',
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30),
+            'project': 'to-do',
             'userID': id
         }
         
@@ -125,16 +126,19 @@ def login(request):
                 is_reg_token_avail.delete()
             refresh_token = create_refresh_token(userDetails.id)
             token_register = RegisterTokens.register_token(refresh_token,userDetails.id)
-            headers = {'refresh':refresh_token,'access':access_token}
             token_register.save()
-            return Response({'message':'Successfully Logged In'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+            headers={"access-control-expose-headers": "Set-Cookie"}
+            response = Response({'message':'Successfully Logged In'}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+            response.set_cookie(key='refreshToken',value=refresh_token,httponly=True)
+            response.set_cookie(key='accessToken',value=access_token,httponly=True)
+            return response
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
     except Exception as error:
         print(error)
         return Response({'error':error}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
-
+# 
 # ---------------------------------------------------------------------------------------------------------
 
 
@@ -217,6 +221,29 @@ def signup(request):
 
 
 # ---------------------------------------------------------------------------------------------------------
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+@api_view(http_method_names=['PUT'])
+def check_your_authorization(request):
+
+    try:
+
+        tokens = request
+    except Exception as error:
+        print(f"Error ocurred during refresh of the access token - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+
 
 
 
