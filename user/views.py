@@ -314,7 +314,6 @@ def get_access_token(request):
             return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
 
 
-        # There might be a chance that signature of the access token gets expired.
         # So we fetch the details of the user using the user id from the refresh token.
         userDetails = User.objects.get(id=decoded_token['userID'])
         # Creatng the access token using the userdetails that we get from above.
@@ -326,13 +325,25 @@ def get_access_token(request):
         return response
     except Exception as error:
         print(f"Error ocurred during refresh of the access token - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        return Response({'error':f"Error ocurred during refresh of the access token - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
         
 
 # ---------------------------------------------------------------------------------------------------------
 
 
 
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+def blacklistTokens():
+    pass
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
