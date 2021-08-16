@@ -268,7 +268,7 @@ def check_your_authorization(request):
 
 
 # >>>> Refresh Token
-@api_view(http_method_names=['PUT'])
+@api_view(http_method_names=['GET'])
 def get_access_token(request):
 
     """
@@ -279,61 +279,51 @@ def get_access_token(request):
         If the refresh token doesn't exist in the database we navigate to login page.
     """
 
-    """
-        NOT IMPLEMENTED - SEND REFRESH TOKEN IN HEADERS
-    """
+    # # Query Parameter
+    # check_default = request.query_params.get('blacklist')
+    # check_default = check_default.capitalize()
+    # registered_tokens.delete()
+    # blacklist = BlacklistTokens.blacklist_token(body)
+    # blacklist.save()
+    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+
+    # Fetching the registered tokens
+    try:  
+        registered_tokens = RegisterTokens.objects.get(registered= request.COOKIES['todo-refreshToken'])
+    except Exception as error:
+        print(f"Error ocurred during fetch of the registered tokens - {error}")
+        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+    if not registered_tokens:
+        return Response({'message':'Unauthorized access. Please try to Login','flag':False}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
     try:
-        # Query Parameter
-        check_default = request.query_params.get('blacklist')
-        check_default = check_default.capitalize()
 
         # Getting the content of the body
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        # Fetching the registered tokens
-        try:  
-            registered_tokens = RegisterTokens.objects.get(registered=body['refresh'])
-        except Exception as error:
-            return HttpResponseServerError(error)
-
-        # Check whether to blacklist or not
-        if check_default == 'True':
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
+        # Decode the Refresh Token
+        decoded_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
+        print(">>>> The refresh token is valid")
+        # Get the current time in seconds
+        present_time = int(datetime.datetime.utcnow().timestamp())
+        # Check whether the expiry time is more than the present time
+        if (decoded_token['exp'] - present_time) < 1:
+            # Deleting the refresh token for the particular user
             registered_tokens.delete()
-            blacklist = BlacklistTokens.blacklist_token(body)
-            blacklist.save()
-            return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
-        else:
-            if not registered_tokens:
-                # They should navigate to Login Page
-                return Response({'message':'Unauthorized access. Please try to Login','flag':False}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
-            else:
-                print(">>>> The refresh token is valid")
-                # Decode the Refresh Token
-                decoded_token = jwt.decode(body['refresh'], SECRET_KEY, algorithms=["HS256"])
-                # Get the current time in seconds
-                present_time = int(datetime.datetime.utcnow().timestamp())
-                # Check whether the expiry time is more than the present time
-                if (decoded_token['exp'] - present_time) < 1:
-                    print("Generating Refresh Token")
+            # Ask the user to Login again
+            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
 
-                    # Deleting the refresh token for the particular user
-                    registered_tokens.delete()
-                    # Ask the user to Login again
-                    return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
-                else:
-                    # Here the the expiry time is still there 
-                    refresh_token = body['refresh']
 
-                # There might be a chance that signature of the access token gets expired.
-                # So we fetch the details of the user using the user id from the refresh token.
-                userDetails = User.objects.get(id=decoded_token['userID'])
-                # Creatng the access token using the userdetails that we get from above.
-                access_token = createToken(userDetails)
+        # There might be a chance that signature of the access token gets expired.
+        # So we fetch the details of the user using the user id from the refresh token.
+        userDetails = User.objects.get(id=decoded_token['userID'])
+        # Creatng the access token using the userdetails that we get from above.
+        access_token = createToken(userDetails)
 
-                return Response({'message':'Token refreshed successfully'}, status=status.HTTP_200_OK,content_type="application/json")
+        headers={"access-control-expose-headers": "Set-Cookie"}
+        response = Response({'message':'Token successfully deployed','flag':True}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+        response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
+        return response
     except Exception as error:
         print(f"Error ocurred during refresh of the access token - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
