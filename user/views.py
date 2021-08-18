@@ -400,16 +400,18 @@ def get_all_user_details(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
-# >>>> Get All User details
+# >>>> Get one user
 @api_view(http_method_names=['GET'])
-def get_all_user_details(request):
+def get_user(request):
 
     try:
-        user_list = User.objects.all()
-        all_users = {}
-        for user in user_list:
-            all_users[user.id] = {'firstname':user.firstname,'lastname':user.lastname,'email':user.email,'isadmin':user.is_admin}
-        return Response({'message':all_users},status=status.HTTP_200_OK,content_type="application/json")
+        id = request.query_params.get('id')
+        user_list = User.objects.filter(id=id)
+        user = user_list[0]
+        if user_list:
+            all_users = {}
+            all_users['content'] = {'id':user.id,'firstname':user.firstname,'lastname':user.lastname,'email':user.email,'isadmin':user.is_admin}
+            return Response({'message':all_users},status=status.HTTP_200_OK,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during fetching of all user details - {error}")
         return Response({'error':f"Error ocurred during fetching of all user details - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")

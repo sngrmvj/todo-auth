@@ -13,5 +13,6 @@ urlpatterns = [
     path("delete",views.delete_user,name="Delete User"),
     path("updateEmail",views.update_user_email,name="Update User Email"),
     path("makeAdmin",views.makeAdmin, name="Make Admin"),
-    path('get_all',views.get_all_user_details, name="Get All User Details")
+    path('get_all',views.get_all_user_details, name="Get All User Details"),
+    path('get_user',views.get_user, name="Get only one person")
 ]
