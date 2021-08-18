@@ -117,9 +117,10 @@ def login(request):
         body = body['content']
         encoded_password = str(hashedPassword(body['password']))
 
-        userDetails = User.objects.get(email=body['email'])
+        userDetails = User.objects.filter(email=body['email'])
         if not userDetails:
             return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+        userDetails = userDetails[0]
         if (userDetails.email == body['email'] and userDetails.password == encoded_password):
             access_token = createToken(userDetails)
             is_reg_token_avail = RegisterTokens.objects.filter(user_id=userDetails.id)
@@ -129,7 +130,7 @@ def login(request):
             token_register = RegisterTokens.register_token(refresh_token,userDetails.id)
             token_register.save()
             headers={"access-control-expose-headers": "Set-Cookie"}
-            response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin,'email':userDetails.email}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+            response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin,'id':userDetails.id}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
             response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True)
             response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
             return response
@@ -137,9 +138,9 @@ def login(request):
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during login - {error}")
-        return Response({'error':error}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+        return Response({'error':f"Error ocurred during login - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
-# 
+
 # ---------------------------------------------------------------------------------------------------------
 
 
@@ -373,6 +374,27 @@ def makeAdmin(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Get All User details
+@api_view(http_method_names=['GET'])
+def get_all_user_details(request):
+
+    try:
+        user_list = User.objects.all()
+        all_users = {}
+        for user in user_list:
+            all_users[user.id] = {'firstname':user.firstname,'lastname':user.lastname,'email':user.email,'isadmin':user.is_admin}
+        return Response({'message':all_users},status=status.HTTP_200_OK,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during fetching of all user details - {error}")
+        return Response({'error':f"Error ocurred during fetching of all user details - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
