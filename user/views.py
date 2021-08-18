@@ -128,7 +128,7 @@ def login(request):
             token_register = RegisterTokens.register_token(refresh_token,userDetails.id)
             token_register.save()
             headers={"access-control-expose-headers": "Set-Cookie"}
-            response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
+            response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin,'email':userDetails.email}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
             response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True)
             response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
             return response
@@ -348,27 +348,32 @@ def blacklistTokens():
 
 
 
-# # ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
 
-# # >>>> Generate OTP
-# @api_view(http_method_names=['PUT'])
-# def isAdmin(request):
-#     try:
-#         body = request.body.decode('utf-8')
-#         body = json.loads(body)
-#         body = body['content']
+# >>>> make A person Admin
+@api_view(http_method_names=['PUT'])
+def makeAdmin(request):
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
 
-#         userDetails = User.objects.get(email=body['email'])
-#         if not userDetails:
-#             return Response({'message':'User Not Found','admin':'No'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
-#         else:
-#             return Response({"isadmin": userDetails.is_admin}, status=status.HTTP_200_OK,content_type="application/json")
-#     except Exception as error:
-#         print(f"Error ocurred during fetching details of is admin - {error}")
-#         return Response({'error':f"Error ocurred during fetching details of is admin - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        if body['email'] != "":
+            User.objects.get(id=body['email']).update(is_admin=True)
+        else:
+            raise Exception("Email to be updated is empty")
+
+        return Response({'message':'Successfully Updated'},status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during fetching details of is admin - {error}")
+        return Response({'error':f"Error ocurred during fetching details of is admin - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
-# # ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+
+
+
 
 
 # ---------------------------------------------------------------------------------------------------------
