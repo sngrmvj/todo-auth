@@ -12,5 +12,6 @@ urlpatterns = [
     path("reset",views.change_password,name="Password reset"),
     path("delete",views.delete_user,name="Delete User"),
     path("updateEmail",views.update_user_email,name="Update User Email"),
-    path("makeAdmin",views.isAdmin, name="Make Admin")
+    path("makeAdmin",views.makeAdmin, name="Make Admin"),
+    path('get_all',views.get_all_user_details, name="Get All User Details")
 ]
