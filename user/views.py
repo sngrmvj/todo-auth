@@ -131,8 +131,9 @@ def login(request):
             token_register.save()
             headers={"access-control-expose-headers": "Set-Cookie"}
             response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin,'id':userDetails.id}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
-            response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True)
-            response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
+            # If we don't keep expires in set_cookie() it gets deleted automatically when browser gets closed.
+            response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(days=30))
+            response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
             return response
         else:
             return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
@@ -323,7 +324,7 @@ def get_access_token(request):
 
         headers={"access-control-expose-headers": "Set-Cookie"}
         response = Response({'message':'Token successfully deployed','flag':True}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
-        response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True)
+        response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(days=0,minutes=10))
         return response
     except Exception as error:
         print(f"Error ocurred during refresh of the access token - {error}")
