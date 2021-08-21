@@ -388,7 +388,7 @@ def get_all_user_details(request):
         user_list = User.objects.all()
         all_users = {}
         for user in user_list:
-            all_users[user.id] = {'firstname':user.firstname,'lastname':user.lastname,'email':user.email,'isadmin':user.is_admin}
+            all_users[user.id] = {'id':user.id,'firstname':user.firstname,'lastname':user.lastname,'email':user.email,'isadmin':user.is_admin}
         return Response({'message':all_users},status=status.HTTP_200_OK,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during fetching of all user details - {error}")
@@ -407,7 +407,7 @@ def get_user(request):
 
     try:
         id = request.query_params.get('id')
-        user_list = User.objects.filter(id=id)
+        user_list = User.objects.filter(id=int(id))
         user = user_list[0]
         if user_list:
             all_users = {}
@@ -421,6 +421,45 @@ def get_user(request):
 # ---------------------------------------------------------------------------------------------------------
 
 
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# >>>>  DELETE USER (Admin Page)
+@api_view(http_method_names=['DELETE'])
+def delete_user(request):
+    
+    
+    try:
+        token = request.headers.get('Authorization', None)
+        decoded_token = validate_and_decode_token(token)
+
+        # Removing the Bearer string from the token
+        token = token.split(" ")[1] 
+        registered_tokens = RegisterTokens.objects.get(registered=token)
+        # if the token exists we can delete the token
+        if registered_tokens:
+            body = {
+                'refresh': token
+            }
+            registered_tokens.delete()
+            blacklist = BlacklistTokens.blacklist_token(body)
+            blacklist.save()
+        
+        # Deleting the user with the user id
+        User.objects.get(id=decoded_token['userID']).delete()
+        
+        return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        return Response({'error':error,'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
@@ -648,43 +687,6 @@ def update_user_lastname(request):
 
 
 
-
-# ---------------------------------------------------------------------------------------------------------
-
-
-# >>>>  DELETE USER (Admin Page)
-@api_view(http_method_names=['DELETE'])
-def delete_user(request):
-    
-    
-    try:
-        token = request.headers.get('Authorization', None)
-        decoded_token = validate_and_decode_token(token)
-
-        # Removing the Bearer string from the token
-        token = token.split(" ")[1] 
-        registered_tokens = RegisterTokens.objects.get(registered=token)
-        # if the token exists we can delete the token
-        if registered_tokens:
-            body = {
-                'refresh': token
-            }
-            registered_tokens.delete()
-            blacklist = BlacklistTokens.blacklist_token(body)
-            blacklist.save()
-        
-        # Deleting the user with the user id
-        User.objects.get(id=decoded_token['userID']).delete()
-        
-        return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-
-    except Exception as error:
-        return Response({'error':error,'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
 
 
 
