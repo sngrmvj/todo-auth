@@ -84,6 +84,19 @@ def generate_otp():
     return random_str
 
 
+# >>>> Verify refresh Token
+def verify_refresh_token(refresh_token):
+    # Decode the Refresh Token
+    decoded_token = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
+    print(">>>> The refresh token is valid")
+    # Get the current time in seconds
+    present_time = int(datetime.datetime.utcnow().timestamp())
+    # Check whether the expiry time is more than the present time
+    if (decoded_token['exp'] - present_time) < 1:
+        return False
+    else:
+        return True
+
 
 
 # -------------------------------------------------------------------------------------------------------
@@ -353,7 +366,7 @@ def blacklistTokens():
 
 # ---------------------------------------------------------------------------------------------------------
 
-# >>>> make A person Admin
+# >>>> make a person admin
 @api_view(http_method_names=['PUT'])
 def makeAdmin(request):
     try:
@@ -361,12 +374,14 @@ def makeAdmin(request):
         body = json.loads(body)
         body = body['content']
 
-        if body['email'] != "":
-            User.objects.get(id=body['email']).update(is_admin=True)
+        if body['id'] != "":
+            User.objects.filter(id=int(body['id'])).update(is_admin=True)
+            userDetails = User.objects.filter(id=int(body['id']))
+            userDetails = userDetails[0]
         else:
-            raise Exception("Email to be updated is empty")
+            raise Exception("Body content is empty!!")
 
-        return Response({'message':'Successfully Updated'},status=status.HTTP_200_OK,content_type="application/json")
+        return Response({'message':userDetails.firstname +' successfully made admin'},status=status.HTTP_200_OK,content_type="application/json")
 
     except Exception as error:
         print(f"Error ocurred during fetching details of is admin - {error}")
@@ -406,8 +421,8 @@ def get_all_user_details(request):
 def get_user(request):
 
     try:
-        id = request.query_params.get('id')
-        user_list = User.objects.filter(id=int(id))
+        ids = request.query_params.get('id')
+        user_list = User.objects.filter(id=int(ids))
         user = user_list[0]
         if user_list:
             all_users = {}
@@ -419,6 +434,153 @@ def get_user(request):
 
 
 # ---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+# >>>> Update USER Lastname
+@api_view(http_method_names=['PUT'])
+def update_user_lastname(request):
+    
+    """
+        Note - 
+        Mostly to update the Lastname.
+    """
+
+    try:
+    
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        #refresh token
+        # Getting the content of the body
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+
+        if body['lastname'] != "":
+            User.objects.filter(id=body['id']).update(lastname=body['lastname'])
+        else:
+            raise Exception("Lastname to be updated is empty")
+
+        return Response({'message':'Your lastname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during updating of user details - {error}")
+        return Response({"error":f"Error ocurred during updating of user details - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  Update USER Firstname
+@api_view(http_method_names=['PUT'])
+def update_user_firstname(request):
+    
+    """
+        Note - 
+        Mostly to update the email.
+    """
+
+    try:
+    
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        #refresh token
+        # Getting the content of the body
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+
+
+        if body['firstname'] != "":
+            User.objects.filter(id=body['id']).update(firstname=body['firstname'])
+        else:
+            raise Exception("Firstname to be updated is empty")
+
+        return Response({'message':'Your firstname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during updating of user details - {error}")
+        return Response({"error":f"Error ocurred during updating of user details - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -606,81 +768,10 @@ def update_user_email(request):
 
 
 
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>>  Update USER Firstname
-@api_view(http_method_names=['PUT'])
-def update_user_firstname(request):
-    
-    """
-        Note - 
-        Mostly to update the email.
-    """
-
-    try:
-    
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        #refresh token
-        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
-        if body['firstname'] != "":
-            User.objects.get(id=decoded_token['userID']).update(firstname=body['firstname'])
-        else:
-            raise Exception("Firstname to be updated is empty")
-
-        return Response({'message':'Firstname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-
-    except Exception as error:
-        print(f"Error ocurred during updating of user details - {error}")
-        return Response({"error":error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
 
 
-# ---------------------------------------------------------------------------------------------------------
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-
-# >>>> Update USER Lastname
-@api_view(http_method_names=['PUT'])
-def update_user_lastname(request):
-    
-    """
-        Note - 
-        Mostly to update the Lastname.
-    """
-
-    try:
-    
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        #refresh token
-        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
-        if body['lastname'] != "":
-            User.objects.get(id=decoded_token['userID']).update(lastname=body['lastname'])
-        else:
-            raise Exception("Lastname to be updated is empty")
-
-        return Response({'message':'Lasttname successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-
-    except Exception as error:
-        print(f"Error ocurred during updating of user details - {error}")
-        return Response({"error":error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
 
 
 
