@@ -546,38 +546,63 @@ def change_password_profile_page(request):
 
 # >>>>  DELETE USER (Admin Page)
 @api_view(http_method_names=['DELETE'])
-def delete_user(request):
-    
-    
-    try:
-        token = request.headers.get('Authorization', None)
-        decoded_token = validate_and_decode_token(token)
+def delete_user_by_admin(request):
 
-        # Removing the Bearer string from the token
-        token = token.split(" ")[1] 
-        registered_tokens = RegisterTokens.objects.get(registered=token)
-        # if the token exists we can delete the token
-        if registered_tokens:
-            body = {
-                'refresh': token
-            }
-            registered_tokens.delete()
-            blacklist = BlacklistTokens.blacklist_token(body)
-            blacklist.save()
-        
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
         # Deleting the user with the user id
-        User.objects.get(id=decoded_token['userID']).delete()
-        
-        return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        user_details = User.objects.get(id=body['id'])
+        if user_details:
+            if user_details.is_admin == False:
+                User.objects.filter(id=body['id']).delete()
+                return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+            else:
+                raise Exception("Unauthorized to delete user")
+        else:
+            return Response({'message':'User not found','flag':False}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
     except Exception as error:
-        return Response({'error':error,'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        print(f"Error ocurred during deletion of user - {error}")
+        return Response({'error':f"Error ocurred during deletion of user - {error}",'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+# -------------------------------------------------------------------------------------------------------------------------
 
 
 
+# ---------------------------------------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------------------
+# >>>>  DELETE USER (Admin Page)
+@api_view(http_method_names=['DELETE'])
+def accountDeletion(request):
 
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        # Deleting the user with the user id
+        user_details = User.objects.get(id=body['id'])
+        if user_details:
+            User.objects.filter(id=body['id']).delete()
+            refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME]
+            token = {
+                'refresh' : refresh_token
+            }
+            blacklist = BlacklistTokens.blacklist_token(token)
+            blacklist.save()
+            return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        else:
+            return Response({'message':'User not found','flag':False}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during deletion of user - {error}")
+        return Response({'error':f"Error ocurred during deletion of user - {error}",'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ----------------------------------------------------------------------------------------------------------------------------------
 
 
 
