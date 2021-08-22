@@ -295,14 +295,6 @@ def get_access_token(request):
         If the refresh token doesn't exist in the database we navigate to login page.
     """
 
-    # # Query Parameter
-    # check_default = request.query_params.get('blacklist')
-    # check_default = check_default.capitalize()
-    # registered_tokens.delete()
-    # blacklist = BlacklistTokens.blacklist_token(body)
-    # blacklist.save()
-    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
-
     # Fetching the registered tokens
     try:  
         registered_tokens = RegisterTokens.objects.get(registered= request.COOKIES['todo-refreshToken'])
@@ -353,8 +345,14 @@ def get_access_token(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
-
+# >>>> Blacklist Tokens 
+@api_view(http_method_names=['PUT'])
 def blacklistTokens():
+    # registered_tokens.delete()
+    # blacklist = BlacklistTokens.blacklist_token(body)
+    # blacklist.save()
+    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+
     pass
 
 
@@ -524,6 +522,44 @@ def update_user_firstname(request):
 
 
 
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  CHANGE PASSWORD
+@api_view(http_method_names=['PUT','POST'])
+def change_password(request):
+
+    """
+        Note - 
+        Here we used refresh token for finding the user. Refresh token contains the user id.
+        Using the user id we can query the DB to update the user password.
+    """
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        # Getting the content of the body
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+
+        if body['password'] != "":
+            userdetails = User.objects.get(id=body['id'])
+            if hashedPassword(body['current']) != userdetails.password:
+                return Response({'message':'Current password is wrong'}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+            User.objects.filter(id=body['id']).update(password=hashedPassword(body['password']))
+            return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        else:
+            return Response({'message':'Password is empty'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during changing password - {error}")
+        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ---------------------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -680,48 +716,6 @@ def otp_verify(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>>  CHANGE PASSWORD
-@api_view(http_method_names=['PUT'])
-def change_password(request):
-
-    """
-        Note - 
-        Here we used refresh token for finding the user. Refresh token contains the user id.
-        Using the user id we can query the DB to update the user password.
-    """
-
-
-    try:
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-        try:
-            decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
-            if isinstance(decoded_token,str):
-                return Response({'error':decoded_token}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json") 
-        except Exception as error:
-            return Response({'error':error}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
-
-        userDetails = User.objects.get(id=decoded_token['userID'])
-        if userDetails:
-            userDetails = User.objects.filter(id=decoded_token['userID']).update(password=body['password'])
-            userDetails.save()
-            return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-        else:
-            return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
-    except Exception as error:
-        print(f"Error ocurred during changing password - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
 
 
 
