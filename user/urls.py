@@ -14,6 +14,7 @@ urlpatterns = [
     path("updateEmail",views.update_user_email,name="Update User Email"),
     path("lastname",views.update_user_lastname, name= "Update User Lastname"),
     path("firstname",views.update_user_firstname, name= "Update User Firstname"),
+    path("change_password_from_profile", views.change_password_profile_page,name = "Change password from profile page"),
     path("makeAdmin",views.makeAdmin, name="Make Admin"),
     path('get_all',views.get_all_user_details, name="Get All User Details"),
     path('get_user',views.get_user, name="Get only one person")

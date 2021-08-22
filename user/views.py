@@ -342,26 +342,6 @@ def get_access_token(request):
 
 
 
-
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>> Blacklist Tokens 
-@api_view(http_method_names=['PUT'])
-def blacklistTokens():
-    # registered_tokens.delete()
-    # blacklist = BlacklistTokens.blacklist_token(body)
-    # blacklist.save()
-    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
-
-    pass
-
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-
-
-
 # ---------------------------------------------------------------------------------------------------------
 
 # >>>> make a person admin
@@ -526,7 +506,7 @@ def update_user_firstname(request):
 
 # >>>>  CHANGE PASSWORD
 @api_view(http_method_names=['PUT','POST'])
-def change_password(request):
+def change_password_profile_page(request):
 
     """
         Note - 
@@ -562,68 +542,7 @@ def change_password(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ---------------------------------------------------------------------------------------------------------
-
 
 # >>>>  DELETE USER (Admin Page)
 @api_view(http_method_names=['DELETE'])
@@ -659,6 +578,66 @@ def delete_user(request):
 
 # ---------------------------------------------------------------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Blacklist Tokens 
+@api_view(http_method_names=['PUT'])
+def blacklistTokens():
+    # registered_tokens.delete()
+    # blacklist = BlacklistTokens.blacklist_token(body)
+    # blacklist.save()
+    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+
+    pass
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
@@ -756,6 +735,29 @@ def update_user_email(request):
 # ---------------------------------------------------------------------------------------------------------
 
 
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Blacklist Tokens 
+@api_view(http_method_names=['PUT','POST'])
+def forgotPassword():
+    # registered_tokens.delete()
+    # blacklist = BlacklistTokens.blacklist_token(body)
+    # blacklist.save()
+    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+
+    pass
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
