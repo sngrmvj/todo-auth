@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse,HttpResponse
 
-from user.models import User,RegisterTokens,BlacklistTokens
+from user.models import User,RegisterTokens,BlacklistTokens,Feedback
 from user.admin import GENERATED_OTP, REFRESH_TOKEN_NAME,ACCESS_TOKEN_NAME
 from toDo.settings import SECRET_KEY
 import json,jwt,hashlib,datetime,random,math
@@ -305,16 +305,17 @@ def get_access_token(request):
         return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
     # Fetching the Blacklist tokens. idea is if the token in the blacklist you are not authorized
+    blacklist_tokens = ""
     try:  
         blacklist_tokens = BlacklistTokens.objects.get(blacklist= request.COOKIES['todo-refreshToken'])
     except Exception as error:
-        print(f"Error ocurred during fetch of the registered tokens - {error}")
-        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        print(f"Error ocurred during fetch of the blaclist tokens - {error}")
+        # return Response({'error':f"Error ocurred during fetch of the blacklist tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
     if blacklist_tokens:
         return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
-    try:
 
+    try:
         # Getting the content of the body
         refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         # Decode the Refresh Token
@@ -409,6 +410,8 @@ def get_user(request):
     try:
         ids = request.query_params.get('id')
         user_list = User.objects.filter(id=int(ids))
+        if not user_list:
+            return Response({'error':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
         user = user_list[0]
         if user_list:
             all_users = {}
@@ -712,14 +715,62 @@ def otp_verify(request):
 
 # ------------------------------------------------------------------------------------------------------------------------------------
 
-
+# >>>>  OTP VERIFICATION
+@api_view(http_method_names=['PUT'])
 def feedback(request):
-    pass
+    
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME]
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+        if body['id'] != "":
+            user = User.objects.get(id=body['id'])
+            if not user:
+                return Response({'message':'User not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+
+        if(body['feedback'] != ""):
+            personal_feedbacks = Feedback.objects.filter(user_email=user.email)
+            if personal_feedbacks:
+                value = personal_feedbacks[0].feedback  
+                value.append(body['feedback'])
+                Feedback.objects.filter(user_email=user.email).update(feedback= value)   
+            else:
+                value = [body['feedback']]
+                feedback_obj = Feedback.store_feedback(user.email,value,user.firstname,user.lastname)
+                feedback_obj.save()
+            return Response({'message':'Feedback successfully sent'}, status=status.HTTP_200_OK,content_type="application/json") 
+    except Exception as error:
+        print(f"Error ocurred during store of the feedback - {error}")
+        return Response({"error":f"Error ocurred during store of feedback - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------
 
+# >>>> Get all the feedback
+@api_view(http_method_names=['GET'])
+def display_feedback(request):
+    
+    try:
+        feedbacks = Feedback.objects.all()
+        all_feedbacks = {}
+        for items in feedbacks:
+            all_feedbacks[items.id] = {'id':items.id,'feedback':items.feedback,'firstname':items.firstname,'lastname':items.lastname}
+        return Response({'message':all_feedbacks},status=status.HTTP_200_OK,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during store of the feedback - {error}")
+        return Response({"error":f"Error ocurred during store of feedback - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ------------------------------------------------------------------------------------------------------------------------------------
 
 
 

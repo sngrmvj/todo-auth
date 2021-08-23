@@ -24,7 +24,9 @@ urlpatterns = [
     
     path("makeAdmin",views.makeAdmin, name="Make Admin"),
     path("blacklist",views.blacklistTokens,name="Blacklist Tokens"),
-    path('feedback',views.feedback,name="Get Feedback"),
+
+    path('feedback',views.feedback,name="Give Feedback"),
+    path('display_feedback', views.display_feedback, name="Display Feedback"),
 
     path('get_all',views.get_all_user_details, name="Get All User Details"),
     path('get_user',views.get_user, name="Get only one person"),

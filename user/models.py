@@ -1,6 +1,7 @@
 from django.db import models
 import hashlib , datetime
 from django.db.models.base import Model
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -61,8 +62,8 @@ class RegisterTokens(models.Model):
 
     @classmethod
     def register_token(cls,token,userID):
-        token_obj = cls(registered=str(token),user_id=userID)
-        return token_obj
+        registered_token_object = cls(registered=str(token),user_id=userID)
+        return registered_token_object
 
 
 
@@ -75,8 +76,22 @@ class BlacklistTokens(models.Model):
 
     @classmethod
     def blacklist_token(cls,tokendetails):
-        token_obj = cls(blacklist=tokendetails['refresh'])
-        return token_obj
+        balcklist_object = cls(blacklist=tokendetails['refresh'])
+        return balcklist_object
 
 
 
+class Feedback(models.Model): 
+
+    class Meta:
+        db_table = 'user_feedback'
+
+    user_email = models.CharField(max_length=255,null=False,unique=True,db_index=True)
+    firstname = models.CharField(max_length=128,null=False,db_index=True)
+    lastname = models.CharField(max_length=128,null=False,db_index=True)
+    feedback = ArrayField(models.CharField(max_length=2048,db_index=True))
+
+    @classmethod
+    def store_feedback(cls,email,feedback,firstname,lastname):
+        feedback_db_obj = cls(user_email=email,feedback=feedback,firstname=firstname,lastname=lastname)
+        return feedback_db_obj
