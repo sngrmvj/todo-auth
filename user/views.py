@@ -185,10 +185,10 @@ def signup(request):
             userDetails = User.createUser(body)
             userDetails.save()
         else:
-            return Response({'message':'User already Exists'}, status=status.HTTP_409_CONFLICT,content_type="application/json")
+            return Response({'warning':'User already Exists'}, status=status.HTTP_409_CONFLICT,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during signup - {error}")
-        return Response({'error':error}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
+        return Response({'error':f"Error ocurred during signup - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
     return Response({'message':'User Created Successfully'}, status=status.HTTP_201_CREATED,content_type="application/json")
 
@@ -301,9 +301,17 @@ def get_access_token(request):
     except Exception as error:
         print(f"Error ocurred during fetch of the registered tokens - {error}")
         return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
     if not registered_tokens:
-        return Response({'message':'Unauthorized access. Please try to Login','flag':False}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+        return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+    # Fetching the Blacklist tokens. idea is if the token in the blacklist you are not authorized
+    try:  
+        blacklist_tokens = BlacklistTokens.objects.get(blacklist= request.COOKIES['todo-refreshToken'])
+    except Exception as error:
+        print(f"Error ocurred during fetch of the registered tokens - {error}")
+        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+    if blacklist_tokens:
+        return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
     try:
 
@@ -319,7 +327,7 @@ def get_access_token(request):
             # Deleting the refresh token for the particular user
             registered_tokens.delete()
             # Ask the user to Login again
-            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
 
         # So we fetch the details of the user using the user id from the refresh token.
@@ -440,7 +448,7 @@ def update_user_lastname(request):
         refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         value = verify_refresh_token(refresh_token)
         if value == False:
-            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+            return Response({'message':'Please login again!!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
         if body['lastname'] != "":
             User.objects.filter(id=body['id']).update(lastname=body['lastname'])
@@ -480,7 +488,7 @@ def update_user_firstname(request):
         refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         value = verify_refresh_token(refresh_token)
         if value == False:
-            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
 
         if body['firstname'] != "":
@@ -523,16 +531,16 @@ def change_password_profile_page(request):
         refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME] 
         value = verify_refresh_token(refresh_token)
         if value == False:
-            return Response({'message':'Please login again !!!','flag':False}, status=status.HTTP_200_OK,content_type="application/json")
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
         if body['password'] != "":
             userdetails = User.objects.get(id=body['id'])
             if hashedPassword(body['current']) != userdetails.password:
-                return Response({'message':'Current password is wrong'}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+                return Response({'error':'Current password is wrong'}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
             User.objects.filter(id=body['id']).update(password=hashedPassword(body['password']))
             return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
         else:
-            return Response({'message':'Password is empty'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+            return Response({'message':'Received password is empty'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during changing password - {error}")
         return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
@@ -559,11 +567,11 @@ def delete_user_by_admin(request):
             else:
                 raise Exception("Unauthorized to delete user")
         else:
-            return Response({'message':'User not found','flag':False}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+            return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
     except Exception as error:
         print(f"Error ocurred during deletion of user - {error}")
-        return Response({'error':f"Error ocurred during deletion of user - {error}",'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        return Response({'error':f"Error ocurred during deletion of user - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
 # -------------------------------------------------------------------------------------------------------------------------
@@ -588,56 +596,15 @@ def accountDeletion(request):
             }
             blacklist = BlacklistTokens.blacklist_token(token)
             blacklist.save()
-            return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+            return Response({'message':'User deleted Successfully'}, status=status.HTTP_200_OK,content_type="application/json")
         else:
-            return Response({'message':'User not found','flag':False}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+            return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
 
     except Exception as error:
         print(f"Error ocurred during deletion of user - {error}")
-        return Response({'error':f"Error ocurred during deletion of user - {error}",'flag':False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+        return Response({'error':f"Error ocurred during deletion of user - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 # ----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -645,20 +612,172 @@ def accountDeletion(request):
 # ---------------------------------------------------------------------------------------------------------
 
 # >>>> Blacklist Tokens 
-@api_view(http_method_names=['PUT'])
-def blacklistTokens():
-    # registered_tokens.delete()
-    # blacklist = BlacklistTokens.blacklist_token(body)
-    # blacklist.save()
-    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
+@api_view(http_method_names=['GET'])
+def blacklistTokens(request):
 
-    pass
+    
+    # Fetching the registered tokens
+    try:  
+        registered_tokens = RegisterTokens.objects.get(registered= request.COOKIES['todo-refreshToken'])
+    except Exception as error:
+        print(f"Error ocurred during fetch of the registered tokens - {error}")
+        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+    if not registered_tokens:
+        return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
 
+    # Fetching the Blacklist tokens. idea is if the token in the blacklist you are not authorized
+    try:  
+        blacklist_tokens = BlacklistTokens.objects.get(blacklist= request.COOKIES['todo-refreshToken'])
+    except Exception as error:
+        print(f"Error ocurred during fetch of the registered tokens - {error}")
+        return Response({'error':f"Error ocurred during fetch of the registered tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+    if blacklist_tokens:
+        return Response({'message':'You are not authorized'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+    try:
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME]
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+        registered_tokens.delete()
+        blacklist = BlacklistTokens.blacklist_token(refresh_token)
+        blacklist.save()
+        return Response({'message':'Token successfully blacklisted'}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during blocking of refresh tokens - {error}")
+        return Response({"error":f"Error ocurred during blocking of refresh tokens - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 
 # ---------------------------------------------------------------------------------------------------------
 
 
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>> Blacklist Tokens 
+@api_view(http_method_names=['PUT','POST'])
+def forgotPassword(request):
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        if body['email'] != '' and body['password'] != "":
+            users = User.objects.get(email=body['email'])
+            if not users:
+                return Response({'message':'User not found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+            User.objects.filter(email=body['email']).update(password=hashedPassword(body['password']))
+        else:
+            raise Exception("Fields are received empty")
+
+        return Response({'message':'Password successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during forgot password - {error}")
+        return Response({"error":f"Error ocurred during forgot password - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ---------------------------------------------------------------------------------------------------------
+
+
+
+
+# -------------------------------------------------------------------------------------------------------------------------------------
+
+# >>>>  OTP VERIFICATION
+@api_view(http_method_names=['PUT'])
+def otp_verify(request):
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        if body['otp'] is None:
+            return Response({'message':'OTPs did not match'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
+        elif body['otp'] == GENERATED_OTP:
+            return Response({'message':'OTPs Matched'}, status=status.HTTP_200_OK,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during verification of OTP - {error}")
+        return Response({"error":f"Error ocurred during verification of OTP - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------
+
+
+def feedback(request):
+    pass
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
+
+# >>>>  Update USER Email
+@api_view(http_method_names=['PUT'])
+def update_user_email(request):
+    
+    """
+        Note - 
+        Mostly to update the email.
+
+        ****************
+        Need to do the verification. If you figure sending an email we need to do the email verification
+        ****************
+    """
+
+    try:
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        body = body['content']
+
+        refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME]
+        value = verify_refresh_token(refresh_token)
+        if value == False:
+            return Response({'message':'Please login again !!'}, status=status.HTTP_401_UNAUTHORIZED,content_type="application/json")
+
+        if body['email'] != "":
+            """
+                Note - Create a function that send the email to the user
+                with the otp so that he types the otp in frontend.
+            """
+            User.objects.filter(id=body['id']).update(email=body['email'])
+        else:
+            raise Exception("Email to be updated is empty")
+
+        return Response({'message':'Email successfully Updated'}, status=status.HTTP_200_OK,content_type="application/json")
+
+    except Exception as error:
+        print(f"Error ocurred during updating of user details - {error}")
+        return Response({"error":f"Error ocurred during updating of user details - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
+
+# ---------------------------------------------------------------------------------------------------------
 
 
 
@@ -680,103 +799,20 @@ def send_otp(request):
         else:
             global GENERATED_OTP
             GENERATED_OTP = generate_otp()
+            """
+                Note - Create a function that send the email to the user
+                with the otp so that he types the otp in frontend.
+            """
+            print(GENERATED_OTP)
+            return Response({'message':"OTP successfully sent to registered mail"}, status=status.HTTP_200_OK,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during sending of token - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
+        return Response({"error":f"Error ocurred during sending of token - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
 
 # ---------------------------------------------------------------------------------------------------------
 
 
 
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>>  OTP VERIFICATION
-@api_view(http_method_names=['PUT'])
-def otp_verify(request):
-
-    try:
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        if body['otp'] is None:
-            return Response({'message':'OTP did not match'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
-        elif body['otp'] == GENERATED_OTP:
-            return Response({'message':'OTPs Matched','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-    except Exception as error:
-        print(f"Error ocurred during verification of OTP - {error}")
-        return Response(error, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>>  Update USER Email
-@api_view(http_method_names=['PUT'])
-def update_user_email(request):
-    
-    """
-        Note - 
-        Mostly to update the email.
-    """
-
-    try:
-    
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        #refresh token
-        decoded_token = validate_and_decode_token(request.headers.get('Authorization', None))
-        if body['email'] != "":
-            User.objects.get(id=decoded_token['userID']).update(email=body['email'])
-        else:
-            raise Exception("Email to be updated is empty")
-
-        return Response({'message':'Email successfully Updated','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
-
-    except Exception as error:
-        print(f"Error ocurred during updating of user details - {error}")
-        return Response({"error":error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------
-
-# >>>> Blacklist Tokens 
-@api_view(http_method_names=['PUT','POST'])
-def forgotPassword():
-    # registered_tokens.delete()
-    # blacklist = BlacklistTokens.blacklist_token(body)
-    # blacklist.save()
-    # return Response({'message':'Please Login again','flag':False}, status=status.HTTP_403_FORBIDDEN,content_type="application/json")
-
-    pass
-
-
-
-# ---------------------------------------------------------------------------------------------------------
 
 
 

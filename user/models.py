@@ -77,3 +77,6 @@ class BlacklistTokens(models.Model):
     def blacklist_token(cls,tokendetails):
         token_obj = cls(blacklist=tokendetails['refresh'])
         return token_obj
+
+
+
