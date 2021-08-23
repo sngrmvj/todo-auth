@@ -132,7 +132,7 @@ def login(request):
 
         userDetails = User.objects.filter(email=body['email'])
         if not userDetails:
-            return Response({'message':'User Not Found'}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
+            return Response({'error':'User Not Found','flag':False}, status=status.HTTP_404_NOT_FOUND,content_type="application/json")
         userDetails = userDetails[0]
         if (userDetails.email == body['email'] and userDetails.password == encoded_password):
             access_token = createToken(userDetails)
@@ -149,7 +149,7 @@ def login(request):
             response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
             return response
         else:
-            return Response({'message':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
+            return Response({'error':'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST,content_type="application/json")
     except Exception as error:
         print(f"Error ocurred during login - {error}")
         return Response({'error':f"Error ocurred during login - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
@@ -549,16 +549,13 @@ def change_password_profile_page(request):
 def delete_user_by_admin(request):
 
     try:
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        # Deleting the user with the user id
-        user_details = User.objects.get(id=body['id'])
-        if user_details:
-            if user_details.is_admin == False:
-                User.objects.filter(id=body['id']).delete()
-                return Response({'message':'User deleted Successfully','flag':True}, status=status.HTTP_200_OK,content_type="application/json")
+        ids = request.query_params.get('id')
+        user_list = User.objects.filter(id=int(ids))
+        user_list = user_list[0]
+        if user_list:
+            if user_list.is_admin == False:
+                User.objects.filter(id=ids).delete()
+                return Response({'message':'User deleted Successfully'}, status=status.HTTP_200_OK,content_type="application/json")
             else:
                 raise Exception("Unauthorized to delete user")
         else:
@@ -580,14 +577,11 @@ def delete_user_by_admin(request):
 def accountDeletion(request):
 
     try:
-        body = request.body.decode('utf-8')
-        body = json.loads(body)
-        body = body['content']
-
-        # Deleting the user with the user id
-        user_details = User.objects.get(id=body['id'])
-        if user_details:
-            User.objects.filter(id=body['id']).delete()
+        ids = request.query_params.get('id')
+        user_list = User.objects.filter(id=int(ids))
+        user_list = user_list[0]
+        if user_list:
+            User.objects.filter(id=ids).delete()
             refresh_token =  request.COOKIES[REFRESH_TOKEN_NAME]
             token = {
                 'refresh' : refresh_token
