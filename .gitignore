@@ -3,4 +3,4 @@ planner/__pycache__
 user/migrations
 user/__pycache__
 *__pycache__
-data/
+data/*
