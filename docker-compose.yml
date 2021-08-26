@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  todoDB:
+    image: postgres
+    container_name: Todo-DB
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=credentials
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    ports: 
+      - "5431:5432"
+  web:
+    build: .
+    container_name: Todo-Auth
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - todoDB
