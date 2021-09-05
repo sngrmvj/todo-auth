@@ -1,5 +1,5 @@
 #Pull Base python image
-FROM python:latest
+FROM python:3.9.7
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -13,8 +13,6 @@ RUN pip install --upgrade pip
 COPY . /app
 RUN pip install -r requirements.txt
 
-# Port expose
-EXPOSE 8000
-
+ENV DJANGO_SETTINGS_MODULE=toDo.settings
 CMD ["python","manage.py","runserver"]
 

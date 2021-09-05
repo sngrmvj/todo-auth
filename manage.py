@@ -15,7 +15,7 @@ def makemigrations():
         os.system("python manage.py makemigrations user")
         os.system("python manage.py migrate user")
     except Exception as error:
-        print(f"Error during making migrations - {error}")
+        print("Error ocurred during migrations - ", error)
 
 
 # Need to check for the tables
@@ -46,9 +46,10 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
     
-    # Need to  check as we can automatically do migrations.
-    check_for_tables()
 
 
 if __name__ == '__main__':
+    # Need to  check as we can automatically do migrations.
+    check_for_tables()
     main()
+
