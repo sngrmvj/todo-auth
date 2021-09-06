@@ -4,6 +4,7 @@ from user import views, admin
 
 urlpatterns = [
     path("ping",admin.ping,name="admin"),
+    path("initialmigrations",admin.initial_migrations,name="Initial Migrations"),
 
     path("login",views.login,name="Login"),
     path("register",views.signup,name="register"),

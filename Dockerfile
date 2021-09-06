@@ -10,9 +10,11 @@ WORKDIR /app
 
 # install dependencies
 RUN pip install --upgrade pip 
-COPY . /app
+COPY requirements.txt ./
 RUN pip install -r requirements.txt
+COPY . .
 
 ENV DJANGO_SETTINGS_MODULE=toDo.settings
-CMD ["python","manage.py","runserver"]
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver"]
 
