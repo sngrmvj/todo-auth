@@ -23,7 +23,7 @@ DATABASES_NAMES = ['admin_credentials', 'blacklist_tokens', 'credentials', 'djan
 @api_view(http_method_names=['GET'])
 def ping():
     string = "<header style='font-size:20px;color:teal'>Yes you are able to access</header>"
-    return HttpResponse(string,status=status.HTTP_200_OK,content_type="application/json")
+    return Response({"status":string},status=status.HTTP_200_OK,content_type="application/json")
 
 # --------------------------------------------------------------------------------------------------------
 
