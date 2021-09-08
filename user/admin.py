@@ -21,8 +21,8 @@ DATABASES_NAMES = ['admin_credentials', 'blacklist_tokens', 'credentials', 'djan
 #>>>> PING
 
 @api_view(http_method_names=['GET'])
-def ping():
-    string = "<header style='font-size:20px;color:teal'>Yes you are able to access</header>"
+def ping(request):
+    string = "Yes you are able to access"
     return Response({"status":string},status=status.HTTP_200_OK,content_type="application/json")
 
 # --------------------------------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ def ping():
 #>>>> Automatic Migration
 
 @api_view(http_method_names=['PUT'])
-def initial_migrations():
+def initial_migrations(request):
 
     """
         Note - Check whether the tables exist in the DATABASE
