@@ -2,7 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from user.admin import initial_migrations
 
 def main():
     """Run administrative tasks."""

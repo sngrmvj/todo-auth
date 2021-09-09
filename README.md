@@ -34,10 +34,11 @@
     - refresh tokens
     - blacklisted tokens
 - Need to implement
-    - Provide permissions in JWt to access the other microservice
+    - Automate the django migrations
     - Sending Email
     - API gateway
-    - Containerize it.
     - Terraform Script
+    - ELK stack (who, when, what for)
+
 
 
