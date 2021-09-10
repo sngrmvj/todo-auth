@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'credentials',
         'USER': 'postgres',
         'PASSWORD': 'root',
-        'HOST': 'todoDB',
+        'HOST': 'db',
         'PORT': '5432',
     },
 }
