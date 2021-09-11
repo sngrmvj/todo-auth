@@ -19,7 +19,7 @@ DATABASES_NAMES = ['blacklist_tokens', 'credentials', 'django_migrations', 'regi
 
 @api_view(http_method_names=['GET'])
 def ping(request):
-    string = "Welcome To Do Planners"
+    string = "Welcome to To-Do Planners"
     return Response({"status":string},status=status.HTTP_200_OK,content_type="application/json")
 
 # --------------------------------------------------------------------------------------------------------
