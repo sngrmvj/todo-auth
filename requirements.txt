@@ -2,6 +2,5 @@ django # Main Framework
 djangorestframework
 djangorestframework-simplejwt
 psycopg2
-jwt
 PyJWT
 django-cors-headers

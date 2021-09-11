@@ -4,7 +4,7 @@ services:
     image: postgres
     container_name: Todo-DB
     volumes:
-      - ./data/db:/var/postgres/data/
+      - todo-db:/var/postgres/data/
     environment:
       - POSTGRES_DB=credentials
       - POSTGRES_USER=postgres
@@ -23,3 +23,5 @@ services:
       - "8000:8000"
     depends_on:
       - db
+volumes:
+  todo-db: 
