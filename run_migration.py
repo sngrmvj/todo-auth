@@ -1,32 +1,14 @@
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
-
+from user.admin import DATABASES_NAMES
 import os,sys
 
-# Register your models here.
-
-# List of Global Variables to be used.
-GENERATED_OTP = None
-REFRESH_TOKEN_NAME = 'todo-refreshToken'
-ACCESS_TOKEN_NAME = 'todo-accessToken'
-DATABASES_NAMES = ['admin_credentials', 'blacklist_tokens', 'credentials', 'django_migrations', 'register_tokens', 'user_feedback']
 
 
 
-#>>>> PING
-
-@api_view(http_method_names=['GET'])
-def ping(request):
-    string = "Yes you are able to access"
-    return Response({"status":string},status=status.HTTP_200_OK,content_type="application/json")
-
-# --------------------------------------------------------------------------------------------------------
-
-#>>>> Automatic Migration
-
-# @api_view(http_method_names=['PUT'])
 def initial_migrations():
 
     """
@@ -53,3 +35,13 @@ def initial_migrations():
     else:
         return Response({'message':'DB is intact'}, status=status.HTTP_200_OK,content_type="application/json")
     
+
+
+if __name__ == "__main__":
+    """
+        Note - This is for the initial migration.
+    """
+    try:
+        initial_migrations()
+    except Exception as exception:
+        print(f"Exception raised during the initial migration - {exception}")
