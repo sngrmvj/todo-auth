@@ -28,28 +28,15 @@ def ping(request):
 
 # @api_view(http_method_names=['PUT'])
 def admin_migration():
-
-    """
-        Note - Check whether the tables exist in the DATABASE
-    """
-    all_tables = connection.introspection.table_names()
-    is_available =  True
-    for dbs in DATABASES_NAMES:
-        if dbs not in all_tables:
-            is_available = False
     
-    if is_available == False:
-        """
-            Note - Do Automatic migration
-        """
-        try:
-            os.system("python manage.py makemigrations user")
-            os.system("python manage.py migrate user")
-            return Response({'message':'DB created successfully'}, status=status.HTTP_201_CREATED,content_type="application/json")
-        except Exception as error:
-            print(f"Error ocurred during automatic migrations - {error}")
-            return Response({'error':f"Error ocurred during automatic migrations  - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
-        
-    else:
-        return Response({'message':'DB is intact'}, status=status.HTTP_200_OK,content_type="application/json")
+    """
+        Note - Do Automatic migration by admin
+    """
+    try:
+        os.system("python manage.py makemigrations user")
+        os.system("python manage.py migrate user")
+        return Response({'message':'DB migration successful'}, status=status.HTTP_201_CREATED,content_type="application/json")
+    except Exception as error:
+        print(f"Error ocurred during automatic migrations - {error}")
+        return Response({'error':f"Error ocurred during automatic migrations  - {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR,content_type="application/json")
     

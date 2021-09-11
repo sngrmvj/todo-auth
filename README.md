@@ -33,6 +33,7 @@
     - To store user creds
     - refresh tokens
     - blacklisted tokens
+    - User details are stored with roles. Admins can make users admins.
 - Need to implement
     - Automate the django migrations
     - Sending Email
