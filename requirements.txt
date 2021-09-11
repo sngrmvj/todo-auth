@@ -1,6 +1,6 @@
 django # Main Framework
-djangorestframework
-djangorestframework-simplejwt
-psycopg2
-PyJWT
-django-cors-headers
+djangorestframework # For accepting the request and response in REST API format.
+djangorestframework-simplejwt # Simple JWT is for keeping the http cookie on client side
+psycopg2 # For Postgres
+PyJWT # For JWT token, Do not use jwt package.
+django-cors-headers # For request and response headers.
