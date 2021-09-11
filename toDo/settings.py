@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os, base64
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-06%z8j%5jube2n@_wfa6jbemh-m2gh&ql-&67db9^qosycj#$z'
+# >>>>> IMPORTANT
+SECRET_KEY = base64.b64decode(os.environ.get('UNWANTED_KEY')).decode('ascii')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -80,15 +82,15 @@ WSGI_APPLICATION = 'toDo.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
+# >>>>> IMPORTANT
 DATABASES = {
     'default':{
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'credentials',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': base64.b64decode(os.environ.get('DATABASE_NAME')).decode('ascii'),
+        'USER': base64.b64decode(os.environ.get('DATABASE_USER')).decode('ascii'),
+        'PASSWORD': base64.b64decode(os.environ.get('DATABASE_PASSWORD')).decode('ascii'),
+        'HOST': base64.b64decode(os.environ.get('DATABASE_HOST')).decode('ascii'),
+        'PORT': base64.b64decode(os.environ.get('DATABASE_PORT')).decode('ascii'),
     },
 }
 

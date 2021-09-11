@@ -27,11 +27,11 @@ def initial_migrations():
         try:
             os.system("python manage.py makemigrations user")
             os.system("python manage.py migrate user")
-            print("Migration is successful")
+            print(">>>> Migration is successful !!")
         except Exception as error:
-            print(f"Error ocurred during automatic migrations - {error}")
+            print(f">>>> Error ocurred during automatic migrations - {error}")
     else:
-        print('DB is intact')
+        print('>>>> DB is Intact !!')
     
 
 
