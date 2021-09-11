@@ -19,14 +19,14 @@ DATABASES_NAMES = ['blacklist_tokens', 'credentials', 'django_migrations', 'regi
 
 @api_view(http_method_names=['GET'])
 def ping(request):
-    string = "Yes you are able to access"
+    string = "Welcome To Do Planners"
     return Response({"status":string},status=status.HTTP_200_OK,content_type="application/json")
 
 # --------------------------------------------------------------------------------------------------------
 
 #>>>> Automatic Migration
 
-# @api_view(http_method_names=['PUT'])
+@api_view(http_method_names=['PUT'])
 def admin_migration():
     
     """
