@@ -35,11 +35,11 @@
     - blacklisted tokens
     - User details are stored with roles. Admins can make users admins.
 - Need to implement
-    - Automate the django migrations
     - Sending Email
     - API gateway
-    - Terraform Script
+    - Terraform Script.
     - ELK stack (who, when, what for)
+    - If possible leverage secrets manager service.
 
 
 
