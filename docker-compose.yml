@@ -14,7 +14,9 @@ services:
   web:
     build: .
     container_name: Todo-Auth
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      bash -c "python migrate.py
+      && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:

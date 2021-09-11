@@ -27,7 +27,7 @@ def ping(request):
 #>>>> Automatic Migration
 
 # @api_view(http_method_names=['PUT'])
-def initial_migrations():
+def admin_migration():
 
     """
         Note - Check whether the tables exist in the DATABASE

@@ -16,6 +16,4 @@ COPY . .
 
 ENV DJANGO_SETTINGS_MODULE=toDo.settings
 EXPOSE 8000
-# RUN chmod +x /app/docker-entrypoint.sh
-# ENTRYPOINT [ "python manage.py migrate user" ]
 
