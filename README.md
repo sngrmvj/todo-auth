@@ -1,45 +1,61 @@
 
 # To Do Planner
 
-- Authentication Server
+### Introduction
+To do tasks is normal to do lists with extra feature of tasks getting refreshed everyday i.e even after you tick off a task it gets unticked next day. The main advantage is it helps you keep track of the daily mandatory tasks and keep you aware of what is completed each day. This comes under daily tasks section. There is one more section called general tasks section which is similar to normal to do checklist.
 
-### To Do planner
-- Implemented two types of To-Do lists.
-- One is normal to do list
-- The other is to-do list that refreshes daily (unchecks the checked items in a particular day).
-    - Basically daily routine items or things to be done are unchecked automatically at the start of the day.
-    - So, user can check the items what he has completed in a particular day and automatically unchecks when the new day starts.
-    - Mostly daily routines like Exercises, drink water etc.
-
-#### Main Moto
-- The main moto is to save the items of the person inside the database and retrieve them when ever it is necessary
-- Authentication server
-- For storing of the tasks another microservice is used developed in Java and uses Kafka.
+---
 
 #### Features
-- Authentication server, a microservice to create user and login user and provide permissions.
-- Password gets hashed before inserting into database. Can't be decrypted. 
-    - When a user logins, the password is hashed and compared with the hashed password in the database.
-- JWT Tokens 
-    - Refresh Tokens which expires in 30 days
-    - Access Tokens which expires in 5 minutes
-    - Refresh tokens are used to fetch access tokens instead of user logging in again and again.
-    - Tokens are stored in cookie and httpOnly set to True. Check Login API. 
-        - In UI, the http call should contain options - {withCredentials: true, observe:"response"}
-        - This sets the cookie directly in the browser without any set-cookie, get-cookie in UI.
-- CRUD Operations for the user details.
-- Password reset using the OTP.
-- DB (Postgres DB only for the authentication server)
-    - To store user creds
-    - refresh tokens
-    - blacklisted tokens
-    - User details are stored with roles. Admins can make users admins.
-- Need to implement
-    - Sending Email
-    - API gateway
-    - Terraform Script.
-    - ELK stack (who, when, what for)
-    - If possible leverage secrets manager service.
+- Application is a role based application. Admins can manage the users and grant admin access. Admins can see the feedback given by the users as well.
+- Two sections are present in To Do tasks
+    - Daily Tasks (gets refreshed everyday)
+    - General Tasks
+- Tasks can be checked/ticked and unchecked/unticked.
+- We can delete the tasks from ticked and unticked as well.
+    - Note: Tasks under daily tasks should be deleted if you don't want a task to be refreshed again next day.
 
+---
+
+#### Technical Features
+- Application is divided into three microservices
+    - todo-lists 
+        - Maintains the tasks of the users and admins
+    - todo-auth (current one)
+        - Authentication server (More info check the repo)
+    - todo-ui
+        - User Interface (More info check the repo)
+- Authentication server (current service)
+    - As said, application is role based application. It takes care of admin's and user's details and issues tokens.
+    - Passwords safeguarding - 
+        - Passwords are not stored in plain text. Password obtained during account creation is encrypted using hashing and the result is saved in DB.
+        - When user logins, the entered password is hashed and verified using the hashed password from DB.
+    - JWT Tokens 
+        - Once the user logins, server sets two httponly cookies. One is for refresh token (lasts for 90 days) and access token (lasts for 10 minutes)
+        - Using the refresh token we get the access token for accessing the tasks.
+        - we blacklist tokens if there is any error or expiration of refresh token and makes sure no one used that refresh token to get access token.
+    - CRUD operations are available for users and admins.
+    - DB (Postgres DB only for the authentication server)
+        - To store user creds
+        - refresh tokens
+        - blacklisted tokens
+        - User details are stored with roles. 
+        - Admins can make users admins.
+- Environment Variables to be provided before you run the application. (Either in dockerfile or docker-compose.yml)
+    - SECRET_KEY
+    - DATABASE_NAME
+    - DATABASE_USER
+    - DATABASE_PASSWORD
+    - DATABASE_HOST
+    - DATABASE_PORT
+
+
+---
+
+#### Repo Links
+- Lists of Tasks (todo-lists)
+    - > https://github.com/sngrmvj/todo-lists
+- User Interface (todo-ui)
+    - > https://github.com/sngrmvj/todo-ui
 
 

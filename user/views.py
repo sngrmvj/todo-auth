@@ -19,7 +19,7 @@ def create_refresh_token(id):
     try:
         payload ={
             'token_type': 'refresh',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=90),
             'project': 'to-do',
             'userID': id
         }
