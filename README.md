@@ -41,6 +41,9 @@ To do tasks is normal to do lists with extra feature of tasks getting refreshed 
         - blacklisted tokens
         - User details are stored with roles. 
         - Admins can make users admins.
+    - Note 
+        - For very first admin, we need to make them admin manually in DB
+        - From next, we can make others admin by logging into the admins acount -> My Profile -> (List of users) -> (Select user) -> Click on make admin.
 - Environment Variables to be provided before you run the application. (Either in dockerfile or docker-compose.yml)
     - SECRET_KEY
     - DATABASE_NAME
