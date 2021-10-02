@@ -142,7 +142,7 @@ def login(request):
             refresh_token = create_refresh_token(userDetails.id)
             token_register = RegisterTokens.register_token(refresh_token,userDetails.id)
             token_register.save()
-            headers={"access-control-expose-headers": "Set-Cookie"}
+            headers={"access-control-expose-headers": "Set-Cookie","Access-Control-Allow-Credentials":True}
             response = Response({'message':'Successfully Logged In',"admin":userDetails.is_admin,'id':userDetails.id}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
             # If we don't keep expires in set_cookie() it gets deleted automatically when browser gets closed.
             response.set_cookie(key= REFRESH_TOKEN_NAME,value=refresh_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(days=30))
@@ -336,7 +336,7 @@ def get_access_token(request):
         # Creatng the access token using the userdetails that we get from above.
         access_token = createToken(userDetails)
 
-        headers={"access-control-expose-headers": "Set-Cookie"}
+        headers={"access-control-expose-headers": "Set-Cookie","Access-Control-Allow-Credentials":True}
         response = Response({'message':'Token successfully deployed','flag':True}, status=status.HTTP_200_OK,content_type="application/json",headers=headers)
         response.set_cookie(key= ACCESS_TOKEN_NAME,value=access_token,httponly=True,expires=datetime.datetime.utcnow() + datetime.timedelta(days=0,minutes=10))
         return response

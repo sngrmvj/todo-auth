@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # >>>>> IMPORTANT
-SECRET_KEY = base64.b64decode(os.environ.get('UNWANTED_KEY')).decode('ascii')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,11 +86,11 @@ WSGI_APPLICATION = 'toDo.wsgi.application'
 DATABASES = {
     'default':{
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': base64.b64decode(os.environ.get('DATABASE_NAME')).decode('ascii'),
-        'USER': base64.b64decode(os.environ.get('DATABASE_USER')).decode('ascii'),
-        'PASSWORD': base64.b64decode(os.environ.get('DATABASE_PASSWORD')).decode('ascii'),
-        'HOST': base64.b64decode(os.environ.get('DATABASE_HOST')).decode('ascii'),
-        'PORT': base64.b64decode(os.environ.get('DATABASE_PORT')).decode('ascii'),
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
     },
 }
 
