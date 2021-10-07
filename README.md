@@ -56,6 +56,12 @@ A To-Do checklist application, mainly for daily tasks which gets refreshed every
     - DATABASE_PASSWORD
     - DATABASE_HOST
     - DATABASE_PORT
+- Local setup 
+  - Install python.
+  - `pip install -r requirements.txt`.
+  - `python manage.py runserver`.
+        - If you want it run on different port, please specify at the end of the command `0.0.0.0:(port)`.
+        - Add that in the User Interface.
 
 
 ---
