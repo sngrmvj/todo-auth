@@ -3,12 +3,11 @@ from django.http.response import HttpResponseServerError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http import JsonResponse,HttpResponse
 
 from user.models import User,RegisterTokens,BlacklistTokens,Feedback
 from user.admin import GENERATED_OTP, REFRESH_TOKEN_NAME,ACCESS_TOKEN_NAME
 from toDo.settings import SECRET_KEY
-import json,jwt,hashlib,datetime,random,math, logging
+import json,hashlib,datetime,random,math
 
 
 ### 
